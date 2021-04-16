@@ -1,0 +1,289 @@
+import pandas as pd
+import numpy as np
+import statistics
+import yfinance as yfin
+import yahoo_fin.stock_info as yf
+import datetime
+import time
+
+ticker= 'pltr'
+live_price= yf.get_live_price(ticker)
+quote_data= yf.get_quote_data(ticker)
+income_statement=yf.get_income_statement(ticker)
+balance_sheet=yf.get_balance_sheet(ticker)
+cash_flow=yf.get_cash_flow(ticker)
+years = balance_sheet.columns
+
+summary = pd.DataFrame(columns = ['Ticker',
+                                  'Profitability', 'Leverage Efficiency',
+                                  'Operating Efficiency'])
+
+mkt_cap= quote_data['marketCap']
+print(mkt_cap)
+
+t= yfin.Ticker("pltr")
+company_info = yfin.Ticker("pltr")
+print(t.major_holders)
+print(t.institutional_holders)
+print(t.recommendations)
+
+#Income Statement Analysis
+
+print(income_statement)
+
+#Revenue Annual Growth
+
+revenue_0= income_statement[years[0]]['totalRevenue']
+revenue_1= income_statement[years[1]]['totalRevenue']
+revenue_2= income_statement[years[2]]['totalRevenue']
+revenue= [revenue_0, revenue_1, revenue_2]
+
+revenue_margin_0= np.subtract(revenue_0, revenue_1)
+revenue_margin_1= np.subtract(revenue_1, revenue_2)
+
+revenue_growth_0= np.divide(revenue_margin_0, revenue_1)
+revenue_growth_1= np.divide(revenue_margin_1, revenue_2)
+
+print("Revenue Annual Growth is :", revenue_growth_0, revenue_growth_1)
+
+#Gross Profit Margin
+
+gp_0= income_statement[years[0]]['grossProfit']
+gp_1= income_statement[years[1]]['grossProfit']
+gp_2= income_statement[years[2]]['grossProfit']
+gp= [gp_0, gp_1, gp_2]
+
+gp_margin_0=np.divide(gp_0, revenue_0)
+gp_margin_1=np.divide(gp_1, revenue_1)
+gp_margin_2=np.divide(gp_2, revenue_2)
+gp_margin= [gp_margin_0, gp_margin_1, gp_margin_2]
+
+gp_margin_mean= x = statistics.mean(gp_margin) 
+print("Gross Profit margin is :", gp_margin_mean) 
+if gp_margin_mean >= 0.4:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#General And Administrative Expenses
+
+sga_0= income_statement[years[0]]['sellingGeneralAdministrative']
+sga_1= income_statement[years[1]]['sellingGeneralAdministrative']
+sga_2= income_statement[years[2]]['sellingGeneralAdministrative']
+sga= [sga_0, sga_1, sga_2]
+sga_ratio= np.divide(sga, gp)
+sga_ratio_mean= x = statistics.mean(sga_ratio) 
+print("General And Administrative Expenses ratio is :", sga_ratio_mean) 
+if sga_ratio_mean <= 0.7:
+        print('PASS')
+else:
+        print('NO PASS')
+
+#Research and Development Expenses
+
+rd_0= income_statement[years[0]]['researchDevelopment']
+rd_1= income_statement[years[1]]['researchDevelopment']
+rd_2= income_statement[years[2]]['researchDevelopment']
+rd= [rd_0, rd_1, rd_2]
+rd_ratio= np.divide(rd, gp)
+rd_ratio_mean= x = statistics.mean(rd_ratio) 
+print("Research and Development Expenses ratio is :", rd_ratio_mean) 
+
+#Earnings Before Interest and Taxes Growth
+
+ebit_0= income_statement[years[0]]['ebit']
+ebit_1= income_statement[years[1]]['ebit']
+ebit_2= income_statement[years[2]]['ebit']
+ebit= [ebit_0, ebit_1, ebit_2]
+
+ebit_margin_0= np.subtract(ebit_0, ebit_1)
+ebit_margin_1= np.subtract(ebit_1, ebit_2)
+
+ebit_growth_0= np.divide(ebit_margin_0, ebit_1)
+ebit_growth_1= np.divide(ebit_margin_1, ebit_2)
+
+print("Earnings Before Interest and Taxes Growth is :", ebit_growth_0, ebit_growth_1) 
+
+#Interest Expense
+
+ie_0= income_statement[years[0]]['interestExpense']
+ie_1= income_statement[years[1]]['interestExpense']
+ie_2= income_statement[years[2]]['interestExpense']
+ie= [ie_0, ie_1, ie_2]
+ie_ratio= np.divide(ie, gp)
+ie_ratio_mean= x = statistics.mean(ie_ratio) 
+print("Interest Expenses ratio is :", ie_ratio_mean) 
+if ie_ratio_mean <= 0.1:
+        print('PASS')
+else:
+        print('NO PASS')
+  
+#Net Income Growth
+
+ni_0= income_statement[years[0]]['netIncome']
+ni_1= income_statement[years[1]]['netIncome']
+ni_2= income_statement[years[2]]['netIncome']
+ni= [ni_0, ni_1, ni_2]
+
+ni_margin_0= np.subtract(ni_0, ni_1)
+ni_margin_1= np.subtract(ni_1, ni_2)
+
+ni_growth_0= np.divide(ni_margin_0, ni_1)
+ni_growth_1= np.divide(ni_margin_1, ni_2)
+
+print("Net Income Growth is :", ni_growth_0, ni_growth_1)
+
+#Net Income Ratio
+
+ni_ratio= np.divide(ni, revenue)
+ni_ratio_mean= x = statistics.mean(ni_ratio) 
+print("Net Income ratio is :", ni_ratio_mean) 
+if ni_ratio_mean >= 0.1:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#Balance Sheet Analysis
+
+print(balance_sheet)
+
+#Return On Total Assets
+
+ta_0= balance_sheet[years[0]]['totalAssets']
+ta_1= balance_sheet[years[1]]['totalAssets']
+ta_2= balance_sheet[years[2]]['totalAssets']
+ta= [ta_0, ta_1, ta_2]
+
+rota= np.divide(ni, ta)
+rota_mean= x = statistics.mean(rota)
+print("Return Of Total Assets is :", rota_mean) 
+
+#Return On Equity
+
+equity_0= balance_sheet[years[0]]['totalStockholderEquity']
+equity_1= balance_sheet[years[1]]['totalStockholderEquity']
+equity_2= balance_sheet[years[2]]['totalStockholderEquity']
+equity= [equity_0, equity_1, equity_2]
+
+roe= np.divide(ni, equity)
+roe_mean= x = statistics.mean(roe)
+print("Return On Equity is :", roe_mean) #Good use of earnings that it is retaining
+
+#Current Ratio
+ca_0= balance_sheet[years[0]]['totalCurrentAssets']
+ca_1= balance_sheet[years[1]]['totalCurrentAssets']
+ca_2= balance_sheet[years[2]]['totalCurrentAssets']
+ca= [ca_0, ca_1, ca_2]
+
+cl_0= balance_sheet[years[0]]['totalCurrentLiabilities']
+cl_1= balance_sheet[years[1]]['totalCurrentLiabilities']
+cl_2= balance_sheet[years[2]]['totalCurrentLiabilities']
+cl= [cl_0, cl_1, cl_2]
+
+c_ratio= np.divide(ca, cl)
+c_ratio_mean= x = statistics.mean(c_ratio)
+print("Current Ratio is :", c_ratio_mean) 
+if c_ratio_mean >= 1.0:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#Debt to Shareholders' Equity Ratio
+tl_0= balance_sheet[years[0]]['totalLiab']
+tl_1= balance_sheet[years[1]]['totalLiab']
+tl_2= balance_sheet[years[2]]['totalLiab']
+tl= [tl_0, tl_1, tl_2]
+
+d_to_sequity= np.divide(tl, equity)
+d_to_sequity_mean= x = statistics.mean(d_to_sequity)
+print("Debt to Shareholders' Equity Ratio is :", d_to_sequity_mean) 
+if d_to_sequity_mean <= 0.8:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#Long Term Debt Ratio
+lt_0= balance_sheet[years[0]]['longTermDebt']
+lt_1= balance_sheet[years[1]]['longTermDebt']
+lt_2= balance_sheet[years[2]]['longTermDebt']
+lt= [lt_0, lt_1, lt_2]
+
+lt_ratio= np.divide(ebit, lt)
+lt_ratio_mean= x = statistics.mean(lt_ratio)
+print("Long Term Debt Ratio is:", lt_ratio)
+
+#Cash Flow Analysis
+
+print(cash_flow)
+
+#CapEx ratio
+
+capex_0= cash_flow[years[0]]['capitalExpenditures']
+capex_1= cash_flow[years[1]]['capitalExpenditures']
+capex_2= cash_flow[years[2]]['capitalExpenditures']
+capex=[capex_0, capex_1, capex_2]
+
+capex_ratio= np.divide(capex, ni)
+capex_ratio_mean= x = statistics.mean(capex_ratio)
+print("CapEx ratio is :", capex_ratio_mean)
+if capex_ratio_mean <= 0.25:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#Free Cash Flow
+
+op_cf_0= cash_flow[years[0]]['totalCashFromOperatingActivities']
+op_cf_1= cash_flow[years[1]]['totalCashFromOperatingActivities']
+op_cf_2= cash_flow[years[2]]['totalCashFromOperatingActivities']
+op_cf= [op_cf_0, op_cf_1, op_cf_2]
+        
+fcf= np.subtract(op_cf, capex)
+n_shares= quote_data['sharesOutstanding']
+fcf_pershare=np.divide(fcf, n_shares)
+fcf_yield=np.divide(fcf_pershare, live_price)
+print('Free Cash Flow Yields are:', fcf_yield)
+
+if fcf_yield[0] > 0.08:
+        print('PASS')
+else:
+        print('NO PASS')
+        
+#Final Results
+
+#Profitability
+
+sga_ratio_score= 1 if sga_ratio_mean <= 0.7 else 0
+capex_ratio_score= 1 if capex_ratio_mean <= 0.25 else 0
+ni_income_score= 1 if ni_ratio_mean >= 0.1 else 0
+fcf_yield_score= 1 if fcf_yield[0] > 0.08 else 0
+    
+profitability_score= + sga_ratio_score + capex_ratio_score + ni_income_score + fcf_yield_score
+
+print('Profitability Score is', profitability_score, 'out of 4')
+
+#Leverage Efficiency
+
+ie_ratio_score= 1 if ie_ratio_mean <= 0.1 else 0
+c_ratio_score= 1 if c_ratio_mean >= 1.0 else 0
+d_to_sequity_score= 1 if d_to_sequity_mean <= 0.8 else 0
+
+leverage_score= ie_ratio_score + c_ratio_score + d_to_sequity_score
+
+print('Leverage Efficiency Score is', leverage_score, 'out of 3')
+
+#Operating Efficiency
+
+gp_margin_score= 1 if gp_margin_mean >= 0.4 else 0
+
+print('Operating Efficiency Score is', gp_margin_score, 'out of 1')
+
+new_row = {'Ticker': ticker,
+           'Profitability': profitability_score,
+          'Leverage Efficiency': leverage_score,
+          'Operating Efficiency': gp_margin_score}
+summary= summary.append(new_row, ignore_index= True )
+
+summary['Total score'] = summary['Profitability'] + summary['Leverage Efficiency'] + summary['Operating Efficiency']
+summary.to_csv('Summary.csv')
+
