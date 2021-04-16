@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @giellerre
-- 👀 I’m interested in Finance
+- 👀 I’m interested in Finance and Corporate Finance
 - 🌱 I’m currently enrolled in MSc in Finance at LUISS Guido Carli
 - 💞️ I’m looking to collaborate on Fundamental Quantitative Analysis
 - 📫 How to reach me: giuseppeluigiricci@gmail.com
